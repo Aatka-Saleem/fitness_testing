@@ -154,8 +154,8 @@ st.markdown(
 # --- Check if image file exists before processing and apply CSS ---
 # Ensure these paths are correct relative to your project or are absolute.
 # For local development, absolute paths like this work. For deployment, consider relative paths or Streamlit's file uploader.
-background_image_path = "E:/GEN AI/fitness_testing/fitness_bg.jpg" # Update if path changes
-fitness_icon_path = "E:/GEN AI/fitness_testing/fitness_icon.png" # Update if path changes
+background_image_path = "fitness_bg.jpg" # Update if path changes
+fitness_icon_path = "fitness_icon.png" # Update if path changes
 
 b64_image = None
 if os.path.exists(background_image_path):
