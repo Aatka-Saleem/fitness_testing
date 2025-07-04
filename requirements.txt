@@ -2,3 +2,7 @@ streamlit
 python-dotenv
 pandas
 groq
+numpy
+plotly
+streamlit-lottie
+requests

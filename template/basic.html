@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💪 Ultimate Fitness Planner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Enhanced CSS Variables */
+        :root {
+            --primary: #3498db;
+            --primary-dark: #2980b9;
+            --secondary: #2ecc71;
+            --secondary-dark: #27ae60;
+            --accent: #e74c3c;
+            --accent-dark: #c0392b;
+            --warning: #f39c12;
+            --background: rgba(255, 255, 255, 0.95);
+            --text: #3a6591;
+            --text-light: #7f8c8d;
+            --sidebar-bg: #2c3e50;
+            --sidebar-text: #ecf0f1;
+            --sidebar-hover: #34495e;
+            --sidebar-active: #3498db;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --shadow-light: rgba(0, 0, 0, 0.1);
+            --shadow-medium: rgba(0, 0, 0, 0.2);
+            --shadow-heavy: rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Background with overlay */
+        .app-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            z-index: -2;
+        }
+
+        .app-background::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 2px, transparent 2px),
+                radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Layout Structure */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 300px;
+            background: linear-gradient(135deg, 
+                rgba(44, 62, 80, 0.95) 0%, 
+                rgba(52, 73, 94, 0.9) 100%);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            color: var(--sidebar-text);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-header .logo {
+            font-size: 4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-header h2 {
+            color: var(--sidebar-text);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .user-info {
+            margin-bottom: 2rem;
+        }
+
+        .user-info input {
+            width: 100%;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: var(--sidebar-text);
+            backdrop-filter: blur(5px);
+            font-size: 0.9rem;
+        }
+
+        .user-info input::placeholder {
+            color: rgba(236, 240, 241, 0.7);
+        }
+
+        .user-info input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .nav-buttons {
+            margin-bottom: 2rem;
+        }
+
+        .nav-button {
+            width: 100%;
+            padding: 15px 20px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--sidebar-text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            font-weight: 500;
+            font-size: 0.95rem;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-button:hover {
+            background: rgba(52, 152, 219, 0.8);
+            color: white;
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            border-color: rgba(52, 152, 219, 0.5);
+        }
+
+        .nav-button.active {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .tip-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+
+        .tip-section h4 {
+            margin-bottom: 0.5rem;
+            color: var(--sidebar-text);
+        }
+
+        .tip-content {
+            font-size: 0.9rem;
+            color: rgba(236, 240, 241, 0.9);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            margin-left: 300px;
+            padding: 2rem;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.expanded {
+            margin-left: 0;
+        }
+
+        .content-container {
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.95) 0%, 
+                rgba(255, 255, 255, 0.9) 100%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 
+                0 8px 32px var(--shadow-medium),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            min-height: calc(100vh - 4rem);
+        }
+
+        .content-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, 
+                transparent 30%, 
+                rgba(255, 255, 255, 0.1) 50%, 
+                transparent 70%);
+            animation: shimmer 3s infinite;
+            pointer-events: none;
+        }
+
+        /* Typography */
+        .main-title {
+            text-align: center;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .main-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .section-title {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            color: var(--primary);
+            border-left: 5px solid var(--primary);
+            padding-left: 15px;
+            margin: 2rem 0 1rem 0;
+        }
+
+        /* Interactive Elements */
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 
+                0 4px 15px var(--shadow-medium),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.3), 
+                transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 
+                0 8px 25px var(--shadow-medium),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            background: linear-gradient(45deg, var(--primary-dark), var(--secondary-dark));
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.3);
+        }
+
+        /* Grid System */
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: -0.5rem;
+        }
+
+        .col {
+            flex: 1;
+            padding: 0.5rem;
+        }
+
+        .col-2 {
+            flex: 0 0 50%;
+            padding: 0.5rem;
+        }
+
+        /* Cards */
+        .card {
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.9) 0%, 
+                rgba(255, 255, 255, 0.7) 100%);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 
+                0 4px 20px var(--shadow-light),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px var(--shadow-medium);
+        }
+
+        .metric-card {
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        /* Alert/Info Boxes */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px var(--shadow-light);
+            margin: 1rem 0;
+        }
+
+        .alert-info {
+            background: rgba(52, 152, 219, 0.1);
+            border-left: 4px solid var(--primary);
+            color: var(--text);
+        }
+
+        /* Mobile Toggle Button */
+        .mobile-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        /* Animations */
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%); }
+            100% { transform: translateX(100%) translateY(100%); }
+        }
+
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .fade-in-delay {
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, var(--primary-dark), var(--secondary-dark));
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-toggle {
+                display: block;
+            }
+            
+            .content-container {
+                margin: 0.5rem;
+                padding: 1.5rem;
+                border-radius: 15px;
+            }
+            
+            .main-title {
+                font-size: 2rem;
+            }
+        }
+
+        /* Loading states */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-background"></div>
+    
+    <!-- Mobile Toggle Button -->
+    <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
+    
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">💪</div>
+                <h2>Fitness Navigation</h2>
+            </div>
+            
+            <div class="user-info">
+                <input type="text" id="userName" placeholder="Your Name" value="Fitness Enthusiast">
+                <input type="email" id="userEmail" placeholder="Email (optional)">
+            </div>
+            
+            <hr style="border: 1px solid rgba(255,255,255,0.2); margin: 1rem 0;">
+            
+            <div class="nav-buttons">
+                <button class="nav-button active" data-page="home">
+                    <span>🏠</span> Home
+                </button>
+                <button class="nav-button" data-page="dashboard">
+                    <span>📊</span> Dashboard
+                </button>
+                <button class="nav-button" data-page="body-metrics">
+                    <span>📏</span> Body Metrics
+                </button>
+                <button class="nav-button" data-page="diet-planner">
+                    <span>🥦</span> Diet Planner
+                </button>
+                <button class="nav-button" data-page="workout-planner">
+                    <span>🗓️</span> Workout Planner
+                </button>
+                <button class="nav-button" data-page="exercise-library">
+                    <span>📚</span> Exercise Library
+                </button>
+                <button class="nav-button" data-page="progress-tracker">
+                    <span>📈</span> Progress Tracker
+                </button>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-value">7 days 🔥</div>
+                <div class="metric-label">Current Streak</div>
+            </div>
+            
+            <hr style="border: 1px solid rgba(255,255,255,0.2); margin: 1rem 0;">
+            
+            <div class="tip-section">
+                <h4>💡 Today's Tip</h4>
+                <p class="tip-content" id="dailyTip">Stay hydrated! Aim to drink at least 8 glasses of water daily.</p>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <div class="content-container">
+                <!-- Home Page Content -->
+                <div id="home-page" class="page-content">
+                    <div class="fade-in">
+                        <h1 class="main-title">🏋️‍♂️ ULTIMATE FITNESS PLANNER</h1>
+                        <p class="main-subtitle">Your AI-powered personal fitness companion</p>
+                    </div>
+                    
+                    <h2 class="section-title">Welcome, <span id="welcomeName">Fitness Enthusiast</span>!</h2>
+                    
+                    <div class="fade-in">
+                        <p style="font-size: 1.1rem; margin-bottom: 2rem;">
+                            This is your central hub for managing your fitness journey.
+                            Use the sidebar to navigate through various sections of the app.
+                        </p>
+                    </div>
+                    
+                    <hr style="border: 1px solid rgba(0,0,0,0.1); margin: 2rem 0;">
+                    
+                    <h3 class="section-title">Your Fitness Overview</h3>
+                    
+                    <div class="alert alert-info">
+                        Start by exploring the Dashboard or planning your next workout!
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-2">
+                            <div class="form-group">
+                                <label for="waterIntake">Daily Water Intake (liters)</label>
+                                <input type="range" id="waterIntake" class="form-control" min="0" max="5" step="0.1" value="2.0">
+                                <span id="waterValue">2.0L</span>
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            <div class="form-group">
+                                <label for="fitnessGoal">Fitness Goal</label>
+                                <select id="fitnessGoal" class="form-control">
+                                    <option value="lose-weight">Lose Weight</option>
+                                    <option value="gain-muscle">Gain Muscle</option>
+                                    <option value="improve-endurance">Improve Endurance</option>
+                                    <option value="maintain-fitness">Maintain Fitness</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Placeholder content for other pages -->
+                <div id="dashboard-page" class="page-content hidden">
+                    <h1 class="main-title">📊 Dashboard</h1>
+                    <div class="alert alert-info">Dashboard functionality would be implemented here.</div>
+                </div>
+                
+                <div id="body-metrics-page" class="page-content hidden">
+                    <h1 class="main-title">📏 Body Metrics</h1>
+                    <div class="alert alert-info">Body metrics tracking would be implemented here.</div>
+                </div>
+                
+                <div id="diet-planner-page" class="page-content hidden">
+                    <h1 class="main-title">🥦 Diet Planner</h1>
+                    <div class="alert alert-info">Diet planning features would be implemented here.</div>
+                </div>
+                
+                <div id="workout-planner-page" class="page-content hidden">
+                    <h1 class="main-title">🗓️ Workout Planner</h1>
+                    <div class="alert alert-info">Workout planning tools would be implemented here.</div>
+                </div>
+                
+                <div id="exercise-library-page" class="page-content hidden">
+                    <h1 class="main-title">📚 Exercise Library</h1>
+                    <div class="alert alert-info">Exercise database and guides would be implemented here.</div>
+                </div>
+                
+                <div id="progress-tracker-page" class="page-content hidden">
+                    <h1 class="main-title">📈 Progress Tracker</h1>
+                    <div class="alert alert-info">Progress tracking and analytics would be implemented here.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Application State
+        let currentPage = 'home';
+        let userData = {
+            name: 'Fitness Enthusiast',
+            email: '',
+            waterIntake: 2.0,
+            fitnessGoal: 'lose-weight'
+        };
+
+        // Daily tips array
+        const dailyTips = [
+            "Stay hydrated! Aim to drink at least 8 glasses of water daily.",
+            "Rest is crucial for muscle growth. Ensure you get 7-8 hours of sleep.",
+            "Consistency over intensity - regular moderate workouts beat occasional intense ones.",
+            "Track your macros, not just calories, for optimal results."
+        ];
+
+        // Initialize the application
+        function initApp() {
+            setupEventListeners();
+            updateDailyTip();
+            loadUserData();
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Navigation buttons
+            document.querySelectorAll('.nav-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const page = e.currentTarget.getAttribute('data-page');
+                    navigateToPage(page);
+                });
+            });
+
+            // User name input
+            document.getElementById('userName').addEventListener('input', (e) => {
+                userData.name = e.target.value || 'Fitness Enthusiast';
+                document.getElementById('welcomeName').textContent = userData.name;
+            });
+
+            // User email input
+            document.getElementById('userEmail').addEventListener('input', (e) => {
+                userData.email = e.target.value;
+            });
+
+            // Water intake slider
+            document.getElementById('waterIntake').addEventListener('input', (e) => {
+                userData.waterIntake = parseFloat(e.target.value);
+                document.getElementById('waterValue').textContent = userData.waterIntake.toFixed(1) + 'L';
+            });
+
+            // Fitness goal selector
+            document.getElementById('fitnessGoal').addEventListener('change', (e) => {
+                userData.fitnessGoal = e.target.value;
+            });
+        }
+
+        // Navigation function
+        function navigateToPage(page) {
+            // Update active button
+            document.querySelectorAll('.nav-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-page="${page}"]`).classList.add('active');
+
+            // Hide all pages
+            document.querySelectorAll('.page-content').forEach(pageEl => {
+                pageEl.classList.add('hidden');
+            });
+
+            // Show selected page
+            const targetPage = document.getElementById(`${page}-page`);
+            if (targetPage) {
+                targetPage.classList.remove('hidden');
+                targetPage.classList.add('fade-in');
+            }
+
+            currentPage = page;
+
+            // Close sidebar on mobile after navigation
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+        }
+
+        // Toggle sidebar for mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // Update daily tip based on current day
+        function updateDailyTip() {
+            const today = new Date();
+            const tipIndex = today.getDate() % dailyTips.length;
+            document.getElementById('dailyTip').textContent = dailyTips[tipIndex];
+        }
+
+        // Load user data (in a real app, this would come from a backend)
+        function loadUserData() {
+            // Simulate loading user preferences
+            document.getElementById('userName').value = userData.name;
+            document.getElementById('welcomeName').textContent = userData.name;
+            document.getElementById('waterIntake').value = userData.waterIntake;
+            document.getElementById('waterValue').textContent = userData.waterIntake.toFixed(1) + 'L';
+            document.getElementById('fitnessGoal').value = userData.fitnessGoal;
+        }
+
+        // Handle window resize for responsive design
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('sidebar');
+            const mobileToggle = document.querySelector('.mobile-toggle');
+            
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(e.target) && 
+                !mobileToggle.contains(e.target) &&
+                sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Simulate API calls for different sections
+        function loadDashboardData() {
+            // Simulate loading dashboard metrics
+            console.log('Loading dashboard data...');
+        }
+
+        function loadBodyMetrics() {
+            // Simulate loading body metrics
+            console.log('Loading body metrics...');
+        }
+
+        function loadDietPlan() {
+            // Simulate loading diet plan
+            console.log('Loading diet plan...');
+        }
+
+        function loadWorkoutPlan() {
+            // Simulate loading workout plan
+            console.log('Loading workout plan...');
+        }
+
+        function loadExerciseLibrary() {
+            // Simulate loading exercise library
+            console.log('Loading exercise library...');
+        }
+
+        function loadProgressData() {
+            // Simulate loading progress data
+            console.log('Loading progress data...');
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

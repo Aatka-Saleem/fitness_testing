@@ -1,97 +1,297 @@
 import os
 import streamlit as st
 import pandas as pd
-from dotenv import load_dotenv
-from groq import Groq
+import numpy as np
+from datetime import datetime
+import base64
+import os
 
-# Load API key
-load_dotenv()
-api_key = os.getenv("GROQ_API_KEY")
-client = Groq(api_key=api_key)
 
-# --- Streamlit App ---
-st.set_page_config(page_title="💪 Ultimate Fitness Planner", layout="wide")
-st.title("🏋️‍♂️ Ultimate Fitness Planner")
+# Import the Backend class from backend_logic.py
+from backend_logic import Backend
 
-# --- BMI & Body Fat Calculator ---
-st.header("📏 Body Metrics Calculator")
-col1, col2, col3 = st.columns(3)
-weight = col1.number_input("Weight (kg)", min_value=20.0, value=60.0)  # Added min_value
-height = col2.number_input("Height (cm)", min_value=50.0, value=170.0)  # Added min_value
-age = col3.number_input("Age (years)", min_value=10, value=25)  # Added min_value
-gender = st.selectbox("Gender", ["Male", "Female"])
+# Import your page content functions
+import Body_Metrics
+import Dashboard
+import Diet_Planner
+import Exercise_Library
+import Progress_Tracker
+import Workout_Planner # Assume Workout_Planner.py exists or will be created
 
-bmi = weight / (height / 100) ** 2
-st.metric("Your BMI", f"{bmi:.2f}")
 
-# Rough body fat estimate (YMCA method)
-if gender == "Male":
-    body_fat = (1.20 * bmi) + (0.23 * age) - 16.2
+# --- App Configuration ---
+st.set_page_config(
+    page_title="💪 Ultimate Fitness Planner",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# --- Initialize Backend in session state (only once per session) ---
+# This makes the AI client and calculation functions available to all dashboards.
+if "backend" not in st.session_state:
+    st.session_state.backend = Backend()
+
+# --- Helper Functions for CSS/Images ---
+def get_base64_image(image_file):
+    """Reads an image file and returns its base64 encoded string."""
+    try:
+        with open(image_file, "rb") as f:
+            img_data = f.read()
+        return base64.b64encode(img_data).decode()
+    except FileNotFoundError:
+        print(f"Error: Background image '{image_file}' not found.")
+        return None
+    except Exception as e:
+        print(f"Error loading image '{image_file}': {e}")
+        return None
+
+def load_css(b64_encoded_image=None, css_file_name="template/basic.html"):
+    """Apply enhanced custom styling by loading from basic.html and adding dynamic background."""
+    
+    # Read static CSS from basic.html
+    static_css_content = ""
+
+    # Define primary color hex for dynamic use in CSS (e.g., for rgba colors)
+    primary_hex = "4A90E2" # This should match the --primary in basic.html
+    r = int(primary_hex[0:2], 16)
+    g = int(primary_hex[2:4], 16)
+    b = int(primary_hex[4:6], 16)
+    primary_rgb = f"{r}, {g}, {b}"
+
+    try:
+        current_dir = os.path.dirname(__file__)
+        css_file_path = os.path.join(current_dir, css_file_name)
+        
+        # ✅ FIX: Specify UTF-8 encoding explicitly
+        with open(css_file_path, "r", encoding="utf-8") as f:
+            static_css_content = f.read()
+            # Extract just the <style> content if the file is a full HTML document
+            if "<style>" in static_css_content and "</style>" in static_css_content:
+                start = static_css_content.find("<style>") + len("<style>")
+                end = static_css_content.find("</style>")
+                static_css_content = static_css_content[start:end]
+
+    except FileNotFoundError:
+        st.error(f"CSS file '{css_file_name}' not found. Make sure it's in the '{os.path.dirname(css_file_path)}' directory.")
+        static_css_content = "" # Fallback to empty if file not found
+    except UnicodeDecodeError as e:
+        st.error(f"Encoding error reading CSS file '{css_file_name}': {e}")
+        st.info("Try saving the CSS file as UTF-8 encoding.")
+        static_css_content = ""
+    except Exception as e:
+        st.error(f"Error reading CSS file '{css_file_name}': {e}")
+        static_css_content = ""
+        
+    background_style = ""
+    if b64_encoded_image:
+        background_style = f"""
+            .stApp {{
+                background-image: 
+                    linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.4)),
+                    url(data:image/jpeg;base64,{b64_encoded_image});
+                background-size: cover;
+                background-position: center center;
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+                min-height: 100vh;
+            }}
+            
+            /* Add a subtle overlay pattern for texture */
+            .stApp::before {{
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-image: 
+                    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 2px, transparent 2px),
+                    radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+                background-size: 50px 50px;
+                pointer-events: none;
+                z-index: -1;
+            }}
+        """
+    else:
+        background_style = """
+            .stApp {
+                background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+                background-attachment: fixed;
+                min-height: 100vh;
+            }
+        """
+
+    # Combine static and dynamic CSS
+    full_css = f"""
+    <style>
+        {background_style}
+        {static_css_content}
+    </style>
+    """
+    
+    # Add primary_rgb to the CSS variables for use in rgba colors
+    full_css = f"""
+    <style>
+        :root {{
+            --primary-rgb: {primary_rgb};
+        }}
+        {background_style}
+        {static_css_content}
+    </style>
+    """
+    
+    st.markdown(full_css, unsafe_allow_html=True)
+
+
+# --- Inject Font Awesome CSS (Crucial for icons from basic.html and other pages) ---
+st.markdown(
+    """
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    """,
+    unsafe_allow_html=True
+)
+
+# --- Check if image file exists before processing and apply CSS ---
+# Ensure these paths are correct relative to your project or are absolute.
+# For local development, absolute paths like this work. For deployment, consider relative paths or Streamlit's file uploader.
+background_image_path = "E:/GEN AI/fitness_testing/fitness_bg.jpg" # Update if path changes
+fitness_icon_path = "E:/GEN AI/fitness_testing/fitness_icon.png" # Update if path changes
+
+b64_image = None
+if os.path.exists(background_image_path):
+    b64_image = get_base64_image(background_image_path)
 else:
-    body_fat = (1.20 * bmi) + (0.23 * age) - 5.4
-st.metric("Estimated Body Fat %", f"{body_fat:.1f}%")
+    print(f"Background image not found at: {background_image_path}")
 
-# --- Fitness Goal & AI Plan ---
-st.header("🤖 AI-Generated Diet & Workout Plan")
-goal = st.text_input("Fitness Goal (e.g., muscle gain, fat loss):", "muscle gain")
+# Apply CSS - pass the base64 image and the HTML file name
+# Make sure 'template' folder exists in the same directory as this script, and basic.html is inside it.
+load_css(b64_encoded_image=b64_image, css_file_name="template/basic.html")
 
-if st.button("Generate Plan"):
-    with st.spinner("Generating your personalized plan..."):
-        prompt = (
-            f"Generate a **detailed 3-day diet and workout plan** for {gender}, "
-            f"{age} years old, weighing {weight} kg, height {height} cm, aiming for {goal}. "
-            "Include daily **nutritional breakdown**: protein, calcium, fiber, carbs, fats (amounts in grams or mg). "
-            "Include **Day 1 (Core + Chest + Biceps), Day 2 (Legs + Triceps), Day 3 (Shoulders + Back + Core)** workouts. "
-            "Present both plans in clear tables."
-        )
-        completion = client.chat.completions.create(
-            model="meta-llama/llama-4-scout-17b-16e-instruct",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=1,
-            max_completion_tokens=1500,
-            top_p=1,
-            stream=True,
-        )
-        response = ""
-        for chunk in completion:
-            content = chunk.choices[0].delta.content or ""
-            response += content
-        st.success("Here’s your personalized plan!")
-        st.markdown(response)
 
-# --- Alternative Meal Suggestions ---
-st.header("🥗 Alternative Meal Suggestions")
-meal_type = st.selectbox("Choose alternative meal type", ["Vegetarian", "Vegan", "High-Protein"])
-if st.button("Suggest Alternative Meals"):
-    with st.spinner("Fetching alternative meals..."):
-        alt_prompt = f"Suggest a **{meal_type}** version of the above diet plan, keeping nutritional balance."
-        completion = client.chat.completions.create(
-            model="meta-llama/llama-4-scout-17b-16e-instruct",
-            messages=[{"role": "user", "content": alt_prompt}],
-            temperature=1,
-            max_completion_tokens=1000,
-            top_p=1,
-            stream=True,
-        )
-        alt_response = ""
-        for chunk in completion:
-            content = chunk.choices[0].delta.content or ""
-            alt_response += content
-        st.markdown(alt_response)
+# --- Initialize session state for current page ---
+if 'current_page' not in st.session_state:
+    st.session_state.current_page = "Home"
 
-# --- Progress Tracker ---
-st.header("📈 Fitness Progress Tracker")
-st.write("Input your progress data below:")
-progress_data = {
-    "Week": [1, 2, 3, 4],
-    "Weight (kg)": [weight, weight - 0.5, weight - 1.0, weight - 1.5],
-    "Waist (cm)": [80, 79, 78, 77]
-}
-df = pd.DataFrame(progress_data)
-st.line_chart(df.set_index("Week"))
+# --- Sidebar Content ---
+with st.sidebar:
+    if os.path.exists(fitness_icon_path):
+        st.image(fitness_icon_path, width=80)
+    else:
+        st.markdown("### 💪") # Fallback icon
 
-# --- Download Plan ---
-st.header("💾 Download Your Plan")
-dummy_text = "Your fitness plan goes here..."  # Replace with real content if needed
-st.download_button("Download Plan as TXT", dummy_text.encode(), "fitness_plan.txt", "text/plain")
-st.download_button("Download Progress as CSV", df.to_csv().encode(), "progress.csv", "text/csv")
+    st.title("Fitness Navigation")
+
+    # User Information Input - These are now shared directly with pages that need them
+    if 'user_name' not in st.session_state:
+        st.session_state.user_name = st.text_input("Your Name", "Fitness Enthusiast")
+
+    if 'user_email' not in st.session_state:
+        st.session_state.user_email = st.text_input("Email (optional)", "")
+
+    st.markdown("---")
+
+    # Page Navigation Buttons
+    page_buttons = [
+        {"label": "Home", "icon": "🏠", "key": "Home"},
+        {"label": "Dashboard", "icon": "📊", "key": "Dashboard"},
+        {"label": "Body Metrics", "icon": "📏", "key": "Body_Metrics"},
+        {"label": "Diet Planner", "icon": "🥦", "key": "Diet_Planner"},
+        {"label": "Workout Planner", "icon": "🗓️", "key": "Workout_Planner"},
+        {"label": "Exercise Library", "icon": "📚", "key": "Exercise_Library"},
+        {"label": "Progress Tracker", "icon": "📈", "key": "Progress_Tracker"},
+    ]
+
+    for btn in page_buttons:
+        # Highlight active button visually (requires CSS in basic.html for .stButton > button[aria-pressed="true"])
+        is_active = (st.session_state.current_page == btn['key'])
+        button_style = "active" if is_active else ""
+        
+        # Streamlit's button doesn't directly support adding custom classes to the button element itself easily,
+        # but the [aria-pressed="true"] selector in basic.html will handle the active state highlight
+        if st.button(f"{btn['icon']} {btn['label']}", key=f"nav_btn_{btn['key']}",
+                     use_container_width=True,
+                     help=f"Go to {btn['label']} Page"):
+            st.session_state.current_page = btn['key']
+            st.rerun()
+
+    # Get today's tip from the backend instance
+    st.markdown("---")
+    st.markdown("### 💡 Today's Tip")
+    if st.session_state.backend:
+        st.info(st.session_state.backend.get_todays_tip())
+    else:
+        st.info("Ensure your AI backend is configured to get daily tips!")
+
+# --- Main Header Section ---
+st.markdown(f"""
+<div style="text-align: center;" class="fade-in">
+    <h1>🏋️‍♂️ ULTIMATE FITNESS PLANNER</h1>
+    <p style="font-size: 1.2rem; margin-bottom: 30px; color: #2c3e50; font-weight: 500;">Your AI-powered personal fitness companion</p>
+</div>
+""", unsafe_allow_html=True)
+
+
+# --- Main Content Area - Page Routing ---
+if st.session_state.current_page == "Home":
+    st.header(f"Welcome, {st.session_state.user_name}!")
+    st.markdown("""
+    <div class="fade-in">
+        <p style="font-size: 1.1rem; color: #2c3e50;">
+            This is your central hub for managing your fitness journey.
+            Use the sidebar to navigate through various sections of the app.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+    st.subheader("Your Fitness Overview")
+    st.info("Start by exploring the Dashboard or planning your next workout!")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.slider("Daily Water Intake (liters)", 0.0, 5.0, 2.0)
+    with col2:
+        st.selectbox("Fitness Goal", ["Lose Weight", "Gain Muscle", "Improve Endurance", "Maintain Fitness"])
+
+elif st.session_state.current_page == "Body_Metrics":
+    try:
+        Body_Metrics.app()
+    except Exception as e:
+        st.error(f"Could not load Body Metrics page. Error: {e}")
+        st.warning("Please ensure 'Body_Metrics.py' is in the same directory and has an 'app()' function.")
+
+elif st.session_state.current_page == "Dashboard":
+    try:
+        Dashboard.app()
+    except Exception as e:
+        st.error(f"Could not load Dashboard page. Error: {e}")
+        st.warning("Please ensure 'Dashboard.py' exists with an 'app()' function.")
+
+elif st.session_state.current_page == "Diet_Planner":
+    try:
+        Diet_Planner.app()
+    except Exception as e:
+        st.error(f"Could not load Diet Planner page. Error: {e}")
+        st.warning("Please ensure 'Diet_Planner.py' exists with an 'app()' function.")
+
+elif st.session_state.current_page == "Exercise_Library":
+    try:
+        Exercise_Library.app()
+    except Exception as e:
+        st.error(f"Could not load Exercise Library page. Error: {e}")
+        st.warning("Please ensure 'Exercise_Library.py' exists with an 'app()' function.")
+
+elif st.session_state.current_page == "Progress_Tracker":
+    try:
+        Progress_Tracker.app()
+    except Exception as e:
+        st.error(f"Could not load Progress Tracker page. Error: {e}")
+        st.warning("Please ensure 'Progress_Tracker.py' exists with an 'app()' function.")
+
+elif st.session_state.current_page == "Workout_Planner":
+    try:
+        Workout_Planner.app()
+    except Exception as e:
+        st.error(f"Could not load Workout Planner page. Error: {e}")
+        st.warning("Please ensure 'Workout_Planner.py' exists with an 'app()' function.")
+
