@@ -49,7 +49,6 @@ def load_css(file_name):
         st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
     except: pass
 
-# --- Apply Styling ---
 b64_image = get_base64_image("fitness_bg.jpg")
 if b64_image:
     st.markdown(f"""<style>.stApp {{
@@ -66,10 +65,17 @@ else:
     # --- Sidebar ---
     with st.sidebar:
         user_info = st.session_state.get('user_info', {})
-        st.image("fitness_icon.png", width=80)
-        st.title("Navigation")
-        st.write(f"Welcome, **{user_info.get('name', '')}**!")
-        st.markdown("---")
+
+        # Use st.markdown with custom CSS to move the welcome message up and add an icon
+        st.markdown(
+            f"""
+            <div style="margin-top: -20px; margin-bottom: 20px;">
+                Welcome, <strong>{user_info.get('name', '')}</strong>! 👋
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        # The horizontal rule <hr> from st.markdown("---") is removed to save vertical space.
         
         page_buttons = [
             {"label": "Home", "icon": "🏠", "key": "Home"},
