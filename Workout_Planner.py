@@ -1,4 +1,6 @@
 import streamlit as st
+import asyncio
+
 # No need for Lottie helper functions if not used.
 
 def app():
@@ -108,7 +110,8 @@ def app():
             """
             
             with st.spinner("Generating your personalized workout plan..."):
-                generated_plan = backend.get_ai_response(system_prompt_workout, ai_workout_prompt)
+                generated_plan = asyncio.run(backend.get_ai_response(system_prompt_workout, ai_workout_prompt))
+                # generated_plan = backend.get_ai_response(system_prompt_workout, ai_workout_prompt)
                 
                 if generated_plan:
                     st.session_state.last_generated_workout_plan = generated_plan

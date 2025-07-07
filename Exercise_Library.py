@@ -1,5 +1,5 @@
 import streamlit as st
-# No need for Lottie helper functions if not used.
+import asyncio # <--- IMPORTANT: Make sure this import is at the top of your app.py or wherever app() is defined
 
 def app():
     backend = st.session_state.backend # Get the backend instance
@@ -19,59 +19,59 @@ def app():
             "description": "Exercises for pectoral muscles.",
             "exercises": [
                 {"name": "Bench Press", "desc": "Great for overall chest development. Can be done with barbell or dumbbells.", "video_url": "https://www.youtube.com/watch?v=SCVCLChPQFY"},
-                {"name": "Push-ups", "desc": "Classic bodyweight exercise, targets chest, shoulders, triceps. Modify for difficulty.", "video_url": "https://www.youtube.com/watch?v=IODxDxX7yrg"},
-                {"name": "Dumbbell Flyes", "desc": "Isolates chest muscles, focuses on stretch.", "video_url": "https://www.youtube.com/watch?v=Z5rnE8f_H2k"},
+                {"name": "Push-ups", "desc": "Classic bodyweight exercise, targets chest, shoulders, triceps. Modify for difficulty.", "video_url": "https://www.youtube.com/watch?v=_l3ySVKYVJ8"},
+                {"name": "Dumbbell Flyes", "desc": "Isolates chest muscles, focuses on stretch.", "video_url": "https://www.youtube.com/watch?v=eozdVDA78K0"},
             ]
         },
         "Back": {
             "description": "Exercises for lats, rhomboids, trapezius, and lower back.",
             "exercises": [
-                {"name": "Pull-ups", "desc": "Excellent for upper back and lats. Great bodyweight strength builder.", "video_url": "https://www.youtube.com/watch?v=eGo4dqzLg3A"},
-                {"name": "Bent Over Rows", "desc": "Builds thickness and strength in the mid-back.", "video_url": "https://www.youtube.com/watch?v=Zp801D352h8"},
-                {"name": "Lat Pulldowns", "desc": "Targets the lats, good for building a V-taper.", "video_url": "https://www.youtube.com/watch?v=0YGQ5bY6V2w"},
+                {"name": "Pull-ups", "desc": "Excellent for upper back and lats. Great bodyweight strength builder.", "video_url": "https://www.youtube.com/watch?v=HRV5YKKaeVw"},
+                {"name": "Bent Over Rows", "desc": "Builds thickness and strength in the mid-back.", "video_url": "https://www.youtube.com/watch?v=vT2GjY_Umpw"},
+                {"name": "Lat Pulldowns", "desc": "Targets the lats, good for building a V-taper.", "video_url": "https://www.youtube.com/watch?v=CAwf7n6Luuc"},
             ]
         },
         "Legs": {
             "description": "Exercises for quadriceps, hamstrings, glutes, and calves.",
             "exercises": [
-                {"name": "Squats", "desc": "Fundamental exercise for lower body strength and mass. Many variations.", "video_url": "https://www.youtube.com/watch?v=ultWZbKWUjg"},
-                {"name": "Deadlifts", "desc": "Full-body strength exercise, excellent for hamstrings, glutes, and back.", "video_url": "https://www.youtube.com/watch?v=ytQyNlO2vN8"},
-                {"name": "Lunges", "desc": "Unilateral exercise, improves balance and targets individual leg muscles.", "video_url": "https://www.youtube.com/watch?v=QO2z-bS2C8E"},
+                {"name": "Squats", "desc": "Fundamental exercise for lower body strength and mass. Many variations.", "video_url": "https://www.youtube.com/watch?v=aclHkVaku9U"},
+                {"name": "Deadlifts", "desc": "Full-body strength exercise, excellent for hamstrings, glutes, and back.", "video_url": "https://www.youtube.com/watch?v=op9kVnSso6Q"},
+                {"name": "Lunges", "desc": "Unilateral exercise, improves balance and targets individual leg muscles.", "video_url": "https://www.youtube.com/watch?v=QOVaHwm-Q6U"},
             ]
         },
         "Shoulders": {
             "description": "Exercises for deltoids (front, side, rear) and trapezius.",
             "exercises": [
-                {"name": "Overhead Press", "desc": "Builds strong shoulders and triceps.", "video_url": "https://www.youtube.com/watch?v=SCVCLChPQFY"},
-                {"name": "Lateral Raises", "desc": "Isolates the side deltoids for wider shoulders.", "video_url": "https://www.youtube.com/watch?v=3VcKaXYSadg"},
+                {"name": "Overhead Press", "desc": "Builds strong shoulders and triceps.", "video_url": "https://www.youtube.com/watch?v=2yjwXTZQDDI"},
+                {"name": "Lateral Raises", "desc": "Isolates the side deltoids for wider shoulders.", "video_url": "https://youtu.be/geenhiHju-o?si=wP4gAD1Z_LtLpPtH"},
             ]
         },
         "Arms": {
             "description": "Exercises for biceps, triceps, and forearms.",
             "exercises": [
                 {"name": "Bicep Curls", "desc": "Classic bicep builder.", "video_url": "https://www.youtube.com/watch?v=kwG2ipFRgfo"},
-                {"name": "Tricep Pushdowns", "desc": "Targets the triceps, good for elbow extension.", "video_url": "https://www.youtube.com/watch?v=F54_GqjJ-Xg"},
+                {"name": "Tricep Pushdowns", "desc": "Targets the triceps, good for elbow extension.", "video_url": "https://www.youtube.com/watch?v=2-LAMcpzODU"},
             ]
         },
         "Core": {
             "description": "Exercises for abdominal muscles, obliques, and lower back stabilization.",
             "exercises": [
-                {"name": "Plank", "desc": "Excellent for core stability and endurance.", "video_url": "https://www.youtube.com/watch?v=ASdvN_X32Lg"},
-                {"name": "Crunches", "desc": "Targets the rectus abdominis.", "video_url": "https://www.youtube.com/watch?v=MkQv5K6iV_E"},
+                {"name": "Plank", "desc": "Excellent for core stability and endurance.", "video_url": "https://www.youtube.com/watch?v=pSHjTRCQxIw"},
+                {"name": "Crunches", "desc": "Targets the rectus abdominis.", "video_url": "https://www.youtube.com/watch?v=Xyd_fa5zoEU"},
             ]
         },
         "Cardio": {
             "description": "Exercises for cardiovascular health and endurance.",
             "exercises": [
-                {"name": "Running", "desc": "Classic cardio, improves endurance and burns calories.", "video_url": "https://www.youtube.com/watch?v=kD3Fp4oE6m4"},
-                {"name": "Cycling", "desc": "Low-impact cardio, great for leg endurance.", "video_url": "https://www.youtube.com/watch?v=r_37Yl8B_0M"},
+                {"name": "Running", "desc": "Classic cardio, improves endurance and burns calories.", "video_url": "https://youtu.be/ywA1SsaLx1o?si=P5pJTRzvc6Wqn9Yx"},
+                {"name": "Cycling", "desc": "Low-impact cardio, great for leg endurance.", "video_url": "https://youtu.be/YeHSHwBXbAU?si=nC_X7_aOiOhDEK_6"},
             ]
         },
         "Full Body": {
             "description": "Exercises that work multiple muscle groups simultaneously.",
             "exercises": [
-                {"name": "Burpees", "desc": "High-intensity full-body exercise.", "video_url": "https://www.youtube.com/watch?v=dZgVxmf6C28"},
-                {"name": "Kettlebell Swings", "desc": "Explosive full-body exercise, great for power and conditioning.", "video_url": "https://www.youtube.com/watch?v=uC06yJd124o"},
+                {"name": "Burpees", "desc": "High-intensity full-body exercise.", "video_url": "https://youtu.be/Pm4XdMqAi9M?si=l0ZiFePwkTepTw58"},
+                {"name": "Kettlebell Swings", "desc": "Explosive full-body exercise, great for power and conditioning.", "video_url": "https://youtu.be/VCcar3MA07w?si=r9YhmEsAy4z2Lepo"},
             ]
         },
     }
@@ -109,12 +109,17 @@ def app():
         height=100,
         key="ai_exercise_query_text_area" # Unique key
     )
+
+    # Initialize session state for AI response if not present
+    if 'ai_suggestions_output' not in st.session_state:
+        st.session_state.ai_suggestions_output = ""
+
     if st.button("Get AI Exercise Suggestions", key="ai_exercise_suggestions_btn"):
         if ai_exercise_query:
             # --- Construct a comprehensive system prompt for the AI with ALL relevant data ---
             system_prompt_exercise = f"""
             You are an AI exercise specialist and physical therapist. Provide detailed exercise suggestions based on the user's query and their comprehensive profile.
-            
+
             User Profile:
             - Name: {st.session_state.get('user_name', 'User')}
             - Current Weight: {weight_kg} kg
@@ -128,18 +133,28 @@ def app():
             - Available Equipment (from Workout Planner): {', '.join(available_equipment_from_planner) if available_equipment_from_planner else 'None'}
 
             Given the user's request and their profile, for each exercise, include:
-            - **Exercise Name**
-            - **Brief Description:** What does it do?
-            - **Target Muscle Group(s)**
-            - **Equipment Needed:** (e.g., "Dumbbells", "Bodyweight", "Gym machine")
-            - **Tips for Proper Form:** A crucial tip or common mistake to avoid.
-            - **Modification/Progression:** How can it be made easier or harder, if applicable.
-            
+            - *Exercise Name*
+            - *Brief Description:* What does it do?
+            - *Target Muscle Group(s)*
+            - *Equipment Needed:* (e.g., "Dumbbells", "Bodyweight", "Gym machine")
+            - *Tips for Proper Form:* A crucial tip or common mistake to avoid.
+            - *Modification/Progression:* How can it be made easier or harder, if applicable.
+
             Suggest 3-5 relevant exercises unless the query specifically asks for more or fewer.
             Format your response clearly using bullet points or a numbered list.
             Ensure safety and effectiveness are prioritized based on their fitness level and available equipment.
             """
             with st.spinner("Finding personalized exercise suggestions..."):
-                backend.get_ai_response(system_prompt_exercise, ai_exercise_query)
+                # Use asyncio.run to execute the async method
+                st.session_state.ai_suggestions_output = asyncio.run(
+                    backend.get_ai_response(system_prompt_exercise, ai_exercise_query)
+                )
+            # Rerun the app to display the updated session state
+            st.rerun()
         else:
             st.warning("Please enter a query for AI exercise suggestions.")
+
+    # Display AI suggestions outside the button block so it persists
+    if st.session_state.ai_suggestions_output:
+        st.subheader("AI Exercise Suggestions:")
+        st.markdown(st.session_state.ai_suggestions_output)

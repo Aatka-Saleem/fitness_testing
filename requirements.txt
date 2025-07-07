@@ -1,8 +1,12 @@
 streamlit
-python-dotenv
 pandas
-groq
 numpy
 plotly
-streamlit-lottie
-requests
+groq
+python-dotenv
+firebase-admin
+uagents
+pytz
+nest_asyncio
+tabulate
+pydantic
