@@ -1,19 +1,23 @@
 💪 Ultimate Fitness Planner — Enterprise Wellness Agent
+
 An Agentic AI-Powered Web App for Employee Wellness
 Designed for the Future of Work | Built with Streamlit, Firebase, Groq, and Fetch.ai | Deployment-Ready Architecture
 
 🌟 Overview
+
 Ultimate Fitness Planner is a smart, agent-driven wellness platform built for enterprise teams. It empowers organizations to improve employee health and productivity using autonomous AI planning tools and a proactive wellness assistant that delivers personalized motivational nudges — all without user prompts.
 
 This isn’t just another fitness tracker. It’s your always-on, intelligent wellness agent.
 
 🚀 Why It’s Different — Agentic Workflows in Action
+
 ✅ Enterprise-Ready
 Designed for organizations and departments: HR, Marketing, Ops, and more
 
 Track individual progress and organization-wide participation from a single dashboard
 
 🤖 Truly Agentic
+
 Built with Fetch.ai's uAgents framework — not a chatbot
 
 Periodically runs checks in the background
@@ -23,6 +27,7 @@ Detects inactivity and sends motivational nudges automatically
 Runs independently — zero user prompts required
 
 🧠 Built for the Future of Work
+
 Supports healthier habits, reduces burnout, and boosts team morale
 
 Encourages nutrition, movement, and mental well-being
@@ -30,6 +35,7 @@ Encourages nutrition, movement, and mental well-being
 Autonomous AI as a well-being co-pilot for modern teams
 
 🛠️ Tech Stack
+
 Layer	Technology
 Frontend	Streamlit
 Backend / DB	Python + Firebase Firestore
@@ -38,6 +44,7 @@ Agent Layer	Fetch.ai’s uAgents
 Deployment	Locally supported (Vultr Deployment Planned)
 
 🧩 Key Features
+
 📋 Personalized Body Metrics
 Users input weight, height, age, and goals
 
@@ -89,24 +96,33 @@ Sends it back to the frontend automatically
 ⚙️ Setup & Installation
 
 git clone https://github.com/Aatka-Saleem/fitness_testing.git
+
 cd fitness_testing
+
 python -m venv venv
+
 source venv/bin/activate
+
 pip install -r requirements.txt
+
 🔐 Configuration
 .streamlit/secrets.toml: Firebase credentials
 
 .env:
 GROQ_API_KEY=your_groq_api_key  
 FITNESS_UAGENT_ADDRESS=your_agent_wallet_address  
+
 🏁 Run the App
+
 Terminal 1:
 
 python run_fetch_agent.py
+
 Terminal 2:
 
 
 streamlit run streamlit_app.py
+
 ☁️ Deployment Notes
 ⚠️ Full Vultr Deployment Coming Soon
 
