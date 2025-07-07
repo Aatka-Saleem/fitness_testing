@@ -101,6 +101,8 @@ else:
         st.markdown("---")
         st.info(st.session_state.backend.get_todays_tip())
 
+# --- Main App Title (appears on all pages) ---
+    st.markdown("<h1 style='text-align: center;'>💪 Ultimate Fitness Planner</h1>", unsafe_allow_html=True)
     # --- Page Routing ---
     page = st.session_state.current_page
     
