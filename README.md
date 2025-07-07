@@ -83,14 +83,17 @@ This system runs without needing a user prompt — it thinks and acts like a rea
 1. Clone the Repository
 git clone https://github.com/Aatka-Saleem/fitness_testing.git
 cd fitness_testing
-2. Create a Virtual Environment
+
+3. Create a Virtual Environment
 python -m venv venv
 # Activate on Windows:
 venv\Scripts\activate
 # Activate on macOS/Linux:
 source venv/bin/activate
+
 3. Install Dependencies
 pip install -r requirements.txt
+
 4. Configure Secrets
 Create .streamlit/secrets.toml with your Firebase service account:
 toml
@@ -101,6 +104,7 @@ project_id = "<your_project_id>"
 Create .env file in the project root:
 GROQ_API_KEY=your_groq_api_key
 FITNESS_UAGENT_ADDRESS=your_agent_wallet_address
+
 5. Run the Application
 Open two terminal windows:
 Terminal 1 — Run the Autonomous Agent
@@ -109,12 +113,14 @@ Terminal 2 — Start the Web App
 streamlit run streamlit_app.py
 
 ☁️ Deployment on Vultr
+
 This app is designed for deployment on Vultr’s cloud infrastructure. You can deploy both the agent and the frontend as long-running services using:
 Streamlit on a Vultr Ubuntu VM or Docker container
 Python agent as a background service (e.g., with systemd or Docker)
 Firebase remains your cloud-hosted backend
 
 🏁 What's Next
+
 This project can easily be extended for:
 Multi-org HR dashboards for admins
 SMS or Slack integrations for nudges
@@ -122,19 +128,26 @@ Advanced analytics (engagement, goal tracking)
 Rewards system for wellness achievements
 
 🧑‍💼 Built For
+
 HR Leaders aiming to boost employee health
 Startups fostering a wellness-first culture
 Enterprise wellness programs powered by AI
 Hackathons showcasing agentic workflows in real-world use cases
 
 👥 Team & Acknowledgments
+
 Built for raise your hackathon for the Vultr x Agentic Workflows Hackathon.
 Thanks to Fetch.ai, Groq, Streamlit, and Vultr for making this possible.
 Team Leader:
 AATKA
+
 TEAM MEMBERS:
+
 AREEBA SHAKEEL
+
 KHOLAH REHAN
+
 NAVEERA SHARIF
+
 SYEDA ANEEQA FATIMA
 
